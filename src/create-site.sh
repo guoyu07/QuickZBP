@@ -6,41 +6,18 @@
 # @require /data/www
 # @require /data/certs
 # @require /data/svn
-clear
-printf "
-#######################################################################
-#                         LNMP for Ubuntu 16+                         #
-#                         author:  zblogcn                            #
-#######################################################################
-"
 
-# Check if user is root
-[ $(id -u) != "0" ] && { echo "${CFAILURE}Error: You must be root to run this script${CEND}"; exit 1; }
-sudo apt-get -y update
-# upgrade software
-sudo apt-get -y upgrade
-# upgrade ubuntu
-#sudo apt-get -y dist-upgrade
-sudo apt-get -y install nginx postgresql postgresql-client zsh git
-sudo mkdir /data/ /data/logs/ /data/logs/nginx /data/www/ /data/tools /data/certs /www/
-sudo apt-get install python-software-properties software-properties-common
-sudo LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php
-sudo apt-get -y update
-sudo apt-get -y install php7.1-fpm php7.1-gd php7.1-curl php7.1-mysql php7.1-cli php7.1-xml php7.1-json  php7.1-sqlite3 php7.1-mbstring php7.1-cli php7.1-pgsql php7.1-opcache
-#sudo wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh
-curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
+if [ $# -ne 2 ]
+then
+  echo "Usage: zblogcn.sh SITENAME URL"
+  exit 1
+fi
 
-
-#wget -O -  https://get.acme.sh | sh
-#sudo openssl dhparam -out /data/certs/dhparam.pem 2048
-
-
-
-sitename='default'
-url='localhost'
+sitename=$1
+url=$2
 data=/data/www/${sitename}
 
-#. "$HOME/.acme.sh/acme.sh.env"
+. "$HOME/.acme.sh/acme.sh.env"
 
 # User permissions
 sudo groupadd ${sitename}
@@ -60,7 +37,7 @@ sudo cp -a /dev/zero /dev/urandom /dev/null ${data}/dev/
 sudo chmod --reference=/tmp ${data}/tmp/
 sudo chmod --reference=/var/lib/php/sessions ${data}/var/lib/php/sessions
 sudo chown -R root:root ${data}/
-sudo chown -R ${sitename}:${sitenme} ${data}/www
+sudo chown -R ${sitename}:${sitename} ${data}/www
 sudo cp /etc/resolv.conf /etc/hosts /etc/nsswitch.conf ${data}/etc
 sudo cp /lib/x86_64-linux-gnu/{libc.so.6,libdl.so.2,libnss_dns.so.2,libnss_files.so.2,libresolv.so.2}  ${data}/lib/
 sudo cp -R /usr/share/zoneinfo ${data}/usr/share
@@ -68,7 +45,7 @@ sudo chmod g+r -R ${data}/www
 sudo ln -s /data/www/${sitename}/www/ /www/${sitename}
 
 # SVN
-#sudo svnadmin create /data/svn/${sitename}
+sudo svnadmin create /data/svn/${sitename}
 
 # Conf files
 sudo bash -c "echo \"[${sitename}]
@@ -100,6 +77,8 @@ sudo bash -c "echo \"server {
     }
 
     # Custom Tag Here
+
+
     location ~ \.php\\\$ {
         try_files \\\$uri =404;
         fastcgi_split_path_info ^(.+\.php)(/.+)\\\$;
@@ -110,19 +89,26 @@ sudo bash -c "echo \"server {
 #        fastcgi_param SCRIPT_FILENAME \\\$document_root\\\$fastcgi_script_name;
         include fastcgi_params;
     }
+
+#    ssl_certificate      /data/certs/${sitename}/fullchain.crt;
+#    ssl_certificate_key  /data/certs/${sitename}/key.key;
+#    ssl_trusted_certificate    /data/certs/${sitename}/ca.pem;
+#    ssl_dhparam          /data/certs/dhparam.pem;
+
     
      include gzip.conf;
+#    include ssl.conf;
 
 }\" > /etc/nginx/sites-available/${sitename}"
 sudo ln -s /etc/nginx/sites-available/${sitename} /etc/nginx/sites-enabled/${sitename}
 
 # Certificate
 mkdir /data/certs/${sitename}
-
-sudo cp nginx.conf /etc/nginx/ -f
-sudo cp ssl.conf /etc/nginx/ -f
-sudo cp gzip.conf /etc/nginx/ -f
-sudo cp global.conf /etc/nginx/ -f
-
+#$HOME/.acme.sh/acme.sh --issue -d ${url} --dns dns_dp
+#$HOME/.acme.sh/acme.sh  --installcert  -d  ${url}   \
+#        --keypath   /data/certs/${sitename}/key.key \
+#        --certpath  /data/certs/${sitename}/cert.pem \
+#        --capath /data/certs/${sitename}/ca.pem \
+#        --fullchainpath /data/certs/${sitename}/fullchain.crt
 sudo service php7.1-fpm restart
 sudo service nginx reload
