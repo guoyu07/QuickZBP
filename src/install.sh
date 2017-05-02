@@ -21,26 +21,18 @@ sudo apt-get -y update
 sudo apt-get -y upgrade
 # upgrade ubuntu
 #sudo apt-get -y dist-upgrade
-sudo apt-get -y install nginx postgresql postgresql-client zsh git
+sudo apt-get -y install nginx postgresql postgresql-client git
 sudo mkdir /data/ /data/logs/ /data/logs/nginx /data/www/ /data/tools /data/certs /www/
-sudo apt-get install python-software-properties software-properties-common
+sudo apt-get -y install python-software-properties software-properties-common
 sudo LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php
 sudo apt-get -y update
-sudo apt-get -y install php7.1-fpm php7.1-gd php7.1-curl php7.1-mysql php7.1-cli php7.1-xml php7.1-json  php7.1-sqlite3 php7.1-mbstring php7.1-cli php7.1-pgsql php7.1-opcache
-#sudo wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh
+sudo apt-get -y install php7.1-fpm php7.1-gd php7.1-curl php7.1-mysql php7.1-cli php7.1-xml php7.1-json  php7.1-sqlite3 php7.1-mbstring php7.1-pgsql php7.1-opcache php7.1-bcmath php7.1-mcrypt
 curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
-
-
-#wget -O -  https://get.acme.sh | sh
-#sudo openssl dhparam -out /data/certs/dhparam.pem 2048
-
 
 
 sitename='default'
 url='localhost'
 data=/data/www/${sitename}
-
-#. "$HOME/.acme.sh/acme.sh.env"
 
 # User permissions
 sudo groupadd ${sitename}
@@ -67,8 +59,13 @@ sudo cp -R /usr/share/zoneinfo ${data}/usr/share
 sudo chmod g+r -R ${data}/www
 sudo ln -s /data/www/${sitename}/www/ /www/${sitename}
 
-# SVN
-#sudo svnadmin create /data/svn/${sitename}
+
+#copy default site files
+sudo cp default/index.php ${data}/www
+sudo apt-get install -y unzip
+wget https://files.phpmyadmin.net/phpMyAdmin/4.7.0/phpMyAdmin-4.7.0-all-languages.zip
+unzip phpMyAdmin-4.7.0-all-languages.zip
+sudo cp phpMyAdmin-4.7.0-all-languages ${data}/www/phpmyadmin
 
 # Conf files
 sudo bash -c "echo \"[${sitename}]
@@ -114,10 +111,11 @@ sudo bash -c "echo \"server {
      include gzip.conf;
 
 }\" > /etc/nginx/sites-available/${sitename}"
-sudo ln -s /etc/nginx/sites-available/${sitename} /etc/nginx/sites-enabled/${sitename}
+#default site is on
+#sudo ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
 # Certificate
-mkdir /data/certs/${sitename}
+sudo mkdir /data/certs/${sitename}
 
 sudo cp nginx.conf /etc/nginx/ -f
 sudo cp ssl.conf /etc/nginx/ -f
