@@ -87,7 +87,7 @@ sudo bash -c "echo \"server {
     include global.conf;
 
     root /data/www/${sitename}/www;
-    server_name ${url};
+    #server_name ${url};
     access_log /data/logs/nginx/${sitename}/\\\$year-\\\$month-\\\$day-access.log;
     error_log /data/logs/nginx/${sitename}/error.log;
 
@@ -117,10 +117,10 @@ sudo bash -c "echo \"server {
 # Certificate
 sudo mkdir /data/certs/${sitename}
 
-sudo cp nginx.conf /etc/nginx/ -f
-sudo cp ssl.conf /etc/nginx/ -f
-sudo cp gzip.conf /etc/nginx/ -f
-sudo cp global.conf /etc/nginx/ -f
+sudo cp config/nginx.conf /etc/nginx/ -f
+sudo cp config/ssl.conf /etc/nginx/ -f
+sudo cp config/gzip.conf /etc/nginx/ -f
+sudo cp config/global.conf /etc/nginx/ -f
 
 sudo service php7.1-fpm restart
 sudo service nginx reload
