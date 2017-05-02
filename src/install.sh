@@ -16,6 +16,15 @@ printf "
 
 # Check if user is root
 [ $(id -u) != "0" ] && { echo "${CFAILURE}Error: You must be root to run this script${CEND}"; exit 1; }
+sudo mkdir config default
+wget https://raw.githubusercontent.com/zblogcn/QuickZBP/master/src/create-site.sh
+wget https://raw.githubusercontent.com/zblogcn/QuickZBP/master/src/default/index.php -P default
+wget https://raw.githubusercontent.com/zblogcn/QuickZBP/master/src/config/global.conf -P config
+wget https://raw.githubusercontent.com/zblogcn/QuickZBP/master/src/config/gzip.conf -P config
+wget https://raw.githubusercontent.com/zblogcn/QuickZBP/master/src/config/nginx.conf -P config
+wget https://raw.githubusercontent.com/zblogcn/QuickZBP/master/src/config/ssl.conf -P config
+
+
 sudo apt-get -y update
 # upgrade software
 sudo apt-get -y upgrade
@@ -24,7 +33,7 @@ sudo apt-get -y upgrade
 sudo apt-get -y install nginx postgresql postgresql-client git
 sudo mkdir /data/ /data/logs/ /data/logs/nginx /data/www/ /data/tools /data/certs /www/
 sudo apt-get -y install python-software-properties software-properties-common
-sudo LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php
+sudo LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php
 sudo apt-get -y update
 sudo apt-get -y install php7.1-fpm php7.1-gd php7.1-curl php7.1-mysql php7.1-cli php7.1-xml php7.1-json  php7.1-sqlite3 php7.1-mbstring php7.1-pgsql php7.1-opcache php7.1-bcmath php7.1-mcrypt
 curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
@@ -65,7 +74,7 @@ sudo cp default/index.php ${data}/www
 sudo apt-get install -y unzip
 wget https://files.phpmyadmin.net/phpMyAdmin/4.7.0/phpMyAdmin-4.7.0-all-languages.zip
 unzip phpMyAdmin-4.7.0-all-languages.zip
-sudo cp phpMyAdmin-4.7.0-all-languages ${data}/www/phpmyadmin
+sudo cp -r phpMyAdmin-4.7.0-all-languages ${data}/www/phpmyadmin
 
 # Conf files
 sudo bash -c "echo \"[${sitename}]
