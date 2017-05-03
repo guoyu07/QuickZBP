@@ -28,8 +28,8 @@ ask_MYSQL_PASS() {
     echo "You entered: $mysql_root_password"
 
     #mysql_root_password="zblogcn"
-    sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password password ${mysql_root_password}'
-    sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password ${mysql_root_password}'
+    sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password password $mysql_root_password'
+    sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password $mysql_root_password'
     sudo debconf-set-selections <<< 'mysql-server mysql-server/start_on_boot: true'
     sudo apt-get install -y mysql-server
 }
@@ -87,10 +87,8 @@ sudo ln -s /data/www/${sitename}/www/ /www/${sitename}
 
 #copy default site files
 sudo cp default/index.php ${data}/www
-sudo apt-get install -y unzip
-wget https://files.phpmyadmin.net/phpMyAdmin/4.7.0/phpMyAdmin-4.7.0-all-languages.zip
-unzip phpMyAdmin-4.7.0-all-languages.zip
-sudo cp -r phpMyAdmin-4.7.0-all-languages ${data}/www/phpmyadmin
+wget https://github.com/zblogcn/QuickZBP/raw/master/src/phpmyadmin.tar.gz
+tar -zxvf phpmyadmin.tar.gz -C ${data}/www
 
 # Conf files
 sudo bash -c "echo \"[${sitename}]
