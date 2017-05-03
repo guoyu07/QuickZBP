@@ -1,7 +1,6 @@
 #!/bin/bash
 # @require /data
 # @require /www
-# @require acme.sh
 # @require /data/logs
 # @require /data/www
 # @require /data/certs
@@ -24,6 +23,25 @@ wget https://raw.githubusercontent.com/zblogcn/QuickZBP/master/src/config/gzip.c
 wget https://raw.githubusercontent.com/zblogcn/QuickZBP/master/src/config/nginx.conf -P config
 wget https://raw.githubusercontent.com/zblogcn/QuickZBP/master/src/config/ssl.conf -P config
 
+ask_MYSQL_PASS() {
+    read -p ">>>>>>>>Please enter the password for root of mysql:" mysql_root_password
+    echo "You entered: $mysql_root_password"
+
+    #mysql_root_password="zblogcn"
+    sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password password ${mysql_root_password}'
+    sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password ${mysql_root_password}'
+    sudo debconf-set-selections <<< 'mysql-server mysql-server/start_on_boot: true'
+    sudo apt-get install -y mysql-server
+}
+
+while  true; do
+    read -p ">>>>>>>>>>>>>>>Do you want to install mysql?(y/n)" yn
+    case $yn in
+    [Yy]* ) ask_MYSQL_PASS; break;;
+    [Nn]* ) break;;
+    * ) echo "Please answer yes or no.";;
+    esac
+done
 
 sudo apt-get -y update
 # upgrade software
@@ -37,7 +55,6 @@ sudo LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php
 sudo apt-get -y update
 sudo apt-get -y install php7.1-fpm php7.1-gd php7.1-curl php7.1-mysql php7.1-cli php7.1-xml php7.1-json  php7.1-sqlite3 php7.1-mbstring php7.1-pgsql php7.1-opcache php7.1-bcmath php7.1-mcrypt
 curl -sS https://getcomposer.org/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
-
 
 sitename='default'
 url='localhost'
@@ -67,7 +84,6 @@ sudo cp /lib/x86_64-linux-gnu/{libc.so.6,libdl.so.2,libnss_dns.so.2,libnss_files
 sudo cp -R /usr/share/zoneinfo ${data}/usr/share
 sudo chmod g+r -R ${data}/www
 sudo ln -s /data/www/${sitename}/www/ /www/${sitename}
-
 
 #copy default site files
 sudo cp default/index.php ${data}/www
@@ -122,7 +138,7 @@ sudo bash -c "echo \"server {
 }\" > /etc/nginx/sites-available/${sitename}"
 #default site is on
 #sudo ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
-
+#!includedir /etc/mysql/conf.d/
 # Certificate
 sudo mkdir /data/certs/${sitename}
 
