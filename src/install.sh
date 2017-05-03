@@ -96,7 +96,7 @@ sudo bash -c "echo \"server {
     include global.conf;
 
     root /data/www/${sitename}/www;
-    #server_name ${url};
+ #   server_name ${url};
     access_log /data/logs/nginx/${sitename}/\\\$year-\\\$month-\\\$day-access.log;
     error_log /data/logs/nginx/${sitename}/error.log;
 
@@ -133,3 +133,8 @@ sudo cp config/global.conf /etc/nginx/ -f
 
 sudo service php7.1-fpm restart
 sudo service nginx reload
+
+printf "
+you have installed LNMP on your VPS
+please visit http://ip/phpmyadmin  to manage your mysql.
+"
